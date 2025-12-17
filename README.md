@@ -19,4 +19,5 @@ aws configure
 RUN
 python app.py
 
-
+License
+MIT
