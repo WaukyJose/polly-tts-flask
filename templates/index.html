@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Amazon Polly TTS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            background: #f7f7f7;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        select, label {
+            margin-top: 10px;
+            display: block;
+        }
+        audio {
+            margin-top: 20px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Amazon Polly – Text to Speech</h2>
+
+<textarea id="text" placeholder="Enter text or SSML here..." oninput="updateStats()"></textarea>
+<div id="stats" style="margin-top:10px; font-size:14px;">
+  Characters: <span id="charCount">0</span> |
+  Estimated cost: $<span id="cost">0.0000</span>
+</div>
+<label>
+    Voice:
+    <select id="voice">
+
+  <optgroup label="English (UK)">
+    <option value="Amy" selected>Amy (UK)</option>
+    <option value="Brian">Brian (UK)</option>
+    <option value="Emma">Emma (UK)</option>
+    <option value="Arthur">Arthur (UK)</option>
+  </optgroup>
+
+  <optgroup label="English (US)">
+    <option value="Joanna">Joanna (US)</option>
+    <option value="Danielle">Danielle (US)</option>
+    <option value="Matthew">Matthew (US)</option>
+    <option value="Kevin">Kevin (US)</option>
+  </optgroup>
+
+  <optgroup label="English (Australia)">
+    <option value="Nicole">Nicole (AU)</option>
+    <option value="Russell">Russell (AU)</option>
+  </optgroup>
+
+  <optgroup label="English (Ireland)">
+    <option value="Niamh">Niamh (IE)</option>
+  </optgroup>
+
+  <optgroup label="English (Children – US)">
+  <option value="Ivy">Ivy (Child – Female)</option>
+  <option value="Justin">Justin (Child – Male)</option>
+</optgroup>
+
+</select>
+</label>
+
+<label>
+    <input type="checkbox" id="ssml">
+    Text is SSML
+</label>
+
+<button onclick="generate()">Generate Audio</button>
+
+<audio id="player" controls></audio>
+
+<script>
+async function generate() {
+    const text = document.getElementById("text").value;
+    const voice = document.getElementById("voice").value;
+    const ssml = document.getElementById("ssml").checked;
+
+    if (ssml && !text.trim().startsWith("<speak>")) {
+        alert("SSML must start with <speak>...</speak>");
+        return;
+    }
+
+    const response = await fetch("/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            text: text,
+            voice: voice,
+            ssml: ssml
+        })
+    });
+
+    if (!response.ok) {
+        alert("Error generating audio");
+        return;
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+
+    const player = document.getElementById("player");
+    player.src = url;
+    player.play();
+}
+
+function updateStats() {
+  const text = document.getElementById("text").value;
+  const chars = text.length;
+  const cost = chars * 0.000016;
+
+  document.getElementById("charCount").innerText = chars;
+  document.getElementById("cost").innerText = cost.toFixed(4);
+}
+</script>
+
+</body>
+</html>

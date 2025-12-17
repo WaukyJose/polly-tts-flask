@@ -1,0 +1,14 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Audio output
+audio/*.mp3
+
+# Env / secrets
+.env
+.aws/
+
+# OS
+.DS_Store
